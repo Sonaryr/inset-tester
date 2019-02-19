@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Do I have safe area insets?</title>
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to right, #314755, #26a0da);
+        }
+        #top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: constant(safe-area-inset-top);
+            height: env(safe-area-inset-top);
+        }
+        #left {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: constant(safe-area-inset-left);
+            width: env(safe-area-inset-left);
+        }
+        #right {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: constant(safe-area-inset-right);
+            width: env(safe-area-inset-right);
+            content: env(safe-area-inset-right);
+        }
+        #bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: constant(safe-area-inset-bottom);
+            height: env(safe-area-inset-bottom);
+        }
+
+        #fullScreenButton {
+            display: none;
+        }
+        .results {
+            margin-top: constant(safe-area-inset-top);
+            margin-top: env(safe-area-inset-top);
+            margin-bottom: constant(safe-area-inset-bottom);
+            margin-bottom: env(safe-area-inset-bottom);
+            margin-left: constant(safe-area-inset-left);
+            margin-left: env(safe-area-inset-left);
+            margin-right: constant(safe-area-inset-right);
+            margin-right: env(safe-area-inset-right);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+        }
+
+        .result-list {
+            list-style-type: none;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .result__title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .result-list__entry-value {
+            font-weight: bold;
+        }
+
+        .inset__top.inset--color {
+            background-color: blue;
+        }
+        .inset__bottom.inset--color {
+            background-color: red;
+        }
+        .inset__left.inset--color {
+            background-color: purple;
+        }
+        .inset__right.inset--color {
+            background-color: chocolate;
+        }
+
+        .inset {
+            z-index: 10;
+        }
+
+        .inset__top.result-list__entry {
+            color: blue;
+        }
+        .inset__bottom.result-list__entry {
+            color: red;
+        }
+        .inset__left.result-list__entry {
+            color: purple;
+        }
+        .inset__right.result-list__entry {
+            color: chocolate;
+        }
+    </style>
+</head>
+<body onload="pageLoaded()">
+    <div class="inset inset__top" id="top"></div>
+    <div class="inset inset__left" id="left"></div>
+    <div class="inset inset__right" id="right"></div>
+    <div class="inset inset__bottom" id="bottom"></div>
+    <div class="results">
+        <button id="fullScreenButton" data-toggle-fullscreen>Toggle fullscreen</button>
+        <div class="result__title">Your device has the following safe-area-insets:</div>
+        <ul class="result-list">
+            <li class="result-list__entry inset__top">safe-area-inset-top: <span class="result-list__entry-value" id="insetTop">0px</span></li>
+            <li class="result-list__entry inset__right">safe-area-inset-right: <span class="result-list__entry-value" id="insetRight">0px</span></li>
+            <li class="result-list__entry inset__bottom">safe-area-inset-bottom: <span class="result-list__entry-value" id="insetBottom">0px</span></li>
+            <li class="result-list__entry inset__left">safe-area-inset-left: <span class="result-list__entry-value" id="insetLeft">0px</span></li>
+        </ul>
+        <div class="visualize-container">
+            <input type="checkbox" id="visualizeInsets" onchange="setVisualization()">
+            <span onclick="document.getElementById('visualizeInsets').checked = !document.getElementById('visualizeInsets').checked; setVisualization();"> Visualize</span>
+        </div>
+    </div>
+</body>
+
+<script>
+    function pageLoaded() {
+        document.addEventListener('click', fullscreenHandler, false);
+        if (!/^iP(hone|[ao]d)/.test(navigator.platform)) {
+            document.getElementById('fullScreenButton').style.display = 'inline-block';
+        }
+        window.addEventListener('orientationchange', function () {
+            setTimeout(displayInsetValues,100);
+        });
+        displayInsetValues();
+    }
+
+    function setVisualization() {
+        var insets = document.getElementsByClassName('inset');
+        if (document.getElementById('visualizeInsets').checked) {
+            for(var i = 0; i < insets.length; i++) {
+                insets[i].classList.add('inset--color');
+            }
+        } else {
+            for(var i = 0; i < insets.length; i++) {
+                insets[i].classList.remove('inset--color');
+            }
+        }
+    }
+
+    function displayInsetValues() {
+        document.getElementById('insetTop').innerText = window.getComputedStyle(document.getElementById('top')).height;
+        document.getElementById('insetRight').innerText = window.getComputedStyle(document.getElementById('right')).width;
+        document.getElementById('insetBottom').innerText = window.getComputedStyle(document.getElementById('bottom')).height;
+        document.getElementById('insetLeft').innerText = window.getComputedStyle(document.getElementById('left')).width;
+    }
+
+    function fullscreenHandler(event) {
+        if (!event.target.hasAttribute('data-toggle-fullscreen')) return;
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            document.documentElement.requestFullscreen();
+        }
+    }
+</script>
+</html>
