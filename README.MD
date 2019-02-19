@@ -1,4 +1,4 @@
-#Inset tester
+# Inset tester
 More and more devices are getting "notches" and edge to edge displays.
 This can cause some strange quirks with you designs.
 
